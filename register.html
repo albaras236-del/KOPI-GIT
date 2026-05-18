@@ -658,19 +658,42 @@
         msg.className = 'error';
         msg.style.display = 'block';
         msg.textContent = text;
+        console.log('Error:', text);
       }
 
-      if (!firstName || !lastName) return showErr('Nama depan dan belakang harus diisi.');
-      if (!email) return showErr('Email harus diisi.');
-      if (!isValidEmail(email)) return showErr('Format email tidak valid.');
-      if (!phone) return showErr('Nomor telepon harus diisi.');
-      if (phone.length < 9) return showErr('Nomor telepon tidak valid.');
-      if (!password) return showErr('Password harus diisi.');
-      if (password.length < 6) return showErr('Password minimal 6 karakter.');
-      if (password !== confirm) return showErr('Konfirmasi password tidak cocok.');
-      if (!terms) return showErr('Anda harus menyetujui syarat & ketentuan.');
+      function showSuccess(text) {
+        msg.id = 'register-msg';
+        msg.className = 'success';
+        msg.style.display = 'block';
+        msg.textContent = text;
+        console.log('Success:', text);
+      }
 
-      // Send to backend API
+      // Validasi input
+      if (!firstName || !lastName) return showErr('❌ Nama depan dan belakang harus diisi.');
+      if (!email) return showErr('❌ Email harus diisi.');
+      if (!isValidEmail(email)) return showErr('❌ Format email tidak valid.');
+      if (!phone) return showErr('❌ Nomor telepon harus diisi.');
+      if (phone.length < 9) return showErr('❌ Nomor telepon tidak valid.');
+      if (!password) return showErr('❌ Password harus diisi.');
+      if (password.length < 6) return showErr('❌ Password minimal 6 karakter.');
+      if (password !== confirm) return showErr('❌ Konfirmasi password tidak cocok.');
+      if (!terms) return showErr('❌ Anda harus menyetujui syarat & ketentuan.');
+
+      // Prepare user data
+      var newUser = {
+        id: Date.now(),
+        avatar: selectedAvatar,
+        firstName: firstName,
+        lastName: lastName,
+        fullName: firstName + ' ' + lastName,
+        email: email,
+        phone: phone,
+        password: password,
+        createdAt: new Date().toISOString()
+      };
+
+      // Try backend API first
       fetch('http://localhost:3000/api/register', {
         method: 'POST',
         headers: {
@@ -690,30 +713,43 @@
       })
       .then(function(data) {
         if (data.success) {
-          // Success
-          msg.className = 'success';
-          msg.style.display = 'block';
-          msg.id = 'register-msg';
-          msg.textContent = selectedAvatar + ' Akun berhasil dibuat! Mengalihkan ke halaman login...';
-
-          // Animate dots to all active
-          document.getElementById('dot-1').classList.add('active');
-          document.getElementById('dot-2').classList.add('active');
-          document.getElementById('dot-3').classList.add('active');
-
-          showToast('Selamat datang, ' + firstName + '! Silakan login. 🎉', '✅');
-
-          setTimeout(function() {
-            window.location.href = 'login.html';
-          }, 1800);
+          // Success with API
+          completeRegistration('API', firstName, selectedAvatar);
         } else {
           showErr('❌ ' + data.message);
         }
       })
       .catch(function(error) {
-        console.error('Registration error:', error);
-        showErr('❌ Gagal terhubung ke server. Pastikan server berjalan di http://localhost:3000');
+        // API not available, fallback to localStorage
+        console.warn('Backend tidak tersedia, menggunakan localStorage');
+        
+        // Check if email already exists
+        var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
+        if (users.find(function(u) { return u.email === email; })) {
+          return showErr('❌ Email ini sudah terdaftar. Silakan masuk.');
+        }
+
+        // Save to localStorage
+        users.push(newUser);
+        localStorage.setItem('kopikuba_users', JSON.stringify(users));
+        completeRegistration('localStorage', firstName, selectedAvatar);
       });
+
+      function completeRegistration(method, firstName, avatar) {
+        showSuccess(avatar + ' Akun berhasil dibuat! Mengalihkan ke halaman login...');
+        
+        // Animate dots to all active
+        document.getElementById('dot-1').classList.add('active');
+        document.getElementById('dot-2').classList.add('active');
+        document.getElementById('dot-3').classList.add('active');
+
+        showToast('Selamat datang, ' + firstName + '! Silakan login. 🎉', '✅');
+        console.log('Registered via:', method);
+
+        setTimeout(function() {
+          window.location.href = 'login.html';
+        }, 1800);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
