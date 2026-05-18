@@ -48,6 +48,16 @@
   </div>
 
   <script>
+    function getStoredSession() {
+      return JSON.parse(localStorage.getItem('kopikuba_session') || sessionStorage.getItem('kopikuba_session') || 'null');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (getStoredSession()) {
+        window.location.href = 'index.html';
+      }
+    });
+
     function handleLogin() {
       var email    = document.getElementById('email').value.trim();
       var password = document.getElementById('password').value;

@@ -710,6 +710,12 @@
       }, 1800);
     }
 
+    document.addEventListener('DOMContentLoaded', function() {
+      if (localStorage.getItem('kopikuba_session') || sessionStorage.getItem('kopikuba_session')) {
+        window.location.href = 'index.html';
+      }
+    });
+
     // ===== Enter key support =====
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') handleRegister();
