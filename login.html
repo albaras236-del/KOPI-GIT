@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Kopi Kuba</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="login-page" style="min-height:100vh;">
+    <div class="login-container">
+      <div class="login-icon">☕</div>
+      <h2>Selamat Datang</h2>
+      <p>Masuk ke akun Kopi Kuba Anda</p>
+      <div id="login-msg" class="login-msg"></div>
+
+      <form id="loginForm" onsubmit="return false;">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="nama@email.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Minimal 6 karakter">
+        </div>
+        <div class="login-options">
+          <div class="checkbox-group">
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Ingat saya</label>
+          </div>
+          <a class="forgot-link" href="#">Lupa Password?</a>
+        </div>
+        <button type="button" class="btn-login" onclick="handleLogin()">Masuk</button>
+      </form>
+
+      <div class="login-footer">
+        Belum punya akun? <a href="register.html">Daftar di sini</a>
+      </div>
+      <div style="margin-top:16px;">
+        <a href="index.html" style="color:var(--accent);text-decoration:none;font-size:14px;">← Kembali ke Beranda</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleLogin() {
+      var email    = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+      var remember = document.getElementById('remember').checked;
+      var msg      = document.getElementById('login-msg');
+
+      msg.className = 'login-msg';
+      msg.textContent = '';
+
+      if (!email || !password) {
+        msg.classList.add('error');
+        msg.textContent = '❌ Email dan password harus diisi.';
+        return;
+      }
+
+      var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
+      var found = users.find(function(u) {
+        return u.email === email && u.password === password;
+      });
+
+      if (!found) {
+        msg.classList.add('error');
+        msg.textContent = '❌ Email atau password salah.';
+        return;
+      }
+
+      var sessionData = {
+        id:        found.id,
+        fullName:  found.fullName,
+        firstName: found.firstName,
+        avatar:    found.avatar,
+        email:     found.email
+      };
+
+      if (remember) {
+        localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+      } else {
+        sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+      }
+
+      msg.classList.add('success');
+      msg.textContent = '✅ Login berhasil! Mengalihkan...';
+
+      setTimeout(function() {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+
+</body>
+</html>

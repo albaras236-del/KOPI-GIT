@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keranjang - Kopi Kuba</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="keranjang.css">
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Checkout overlay -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-box">
+      <div class="checkout-icon">✅</div>
+      <h3>Pesanan Diterima!</h3>
+      <p>Terima kasih sudah memesan di Kopi Kuba. Pesanan Anda sedang diproses.</p>
+      <button onclick="closeCheckout()">Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <div class="cart-page" style="min-height:100vh;">
+    <div id="cart">
+      <div class="cart-header">
+        <h2>Keranjang</h2>
+        <span class="cart-header-count" id="cart-header-count">0 item</span>
+      </div>
+      <ul id="cart-items"></ul>
+      <div id="cart-summary" class="cart-summary" style="display:none;">
+        <div class="cart-total-row">
+          <span class="cart-total-label">Total</span>
+          <span class="cart-total-value">Rp <span id="cart-total">0</span></span>
+        </div>
+        <div class="cart-actions">
+          <button class="btn-clear" onclick="clearCart()">Kosongkan</button>
+          <button class="btn-continue" onclick="window.location.href='index.html'">Belanja Lagi</button>
+          <button class="btn-checkout" onclick="checkout()">Checkout →</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;">
+      <a href="index.html" style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:600;">← Kembali ke Beranda</a>
+    </div>
+  </div>
+
+  <script>
+    function showToast(msg, icon) {
+      icon = icon || '☕';
+      var c = document.getElementById('toast-container');
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = '<span class="toast-icon">' + icon + '</span>' + msg;
+      c.appendChild(t);
+      setTimeout(function() { t.classList.add('toast-out'); t.addEventListener('animationend', function() { t.remove(); }); }, 2500);
+    }
+
+    function checkout() { document.getElementById('checkout-overlay').classList.add('active'); }
+    function closeCheckout() {
+      document.getElementById('checkout-overlay').classList.remove('active');
+      cart = [];
+      updateCart();
+      window.location.href = 'index.html';
+    }
+  </script>
+  <script src="cart.js"></script>
+</body>
+</html>

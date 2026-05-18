@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kopi Kuba</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="keranjang.css">
+</head>
+<body>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Nav overlay for mobile -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeMenu()"></div>
+
+  <!-- Checkout overlay -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-box">
+      <div class="checkout-icon">✅</div>
+      <h3>Pesanan Diterima!</h3>
+      <p>Terima kasih sudah memesan di Kopi Kuba. Pesanan Anda sedang diproses.</p>
+      <button onclick="closeCheckout()">Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <header>
+    <div class="logo" onclick="navTo('home')"><span>☕</span> Kopi Kuba</div>
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menu">☰</button>
+    <nav id="main-nav">
+      <a onclick="navTo('home')" data-page="home" class="nav-active">Beranda</a>
+      <a onclick="navToSection('beans')" data-page="beans">Coffee Beans</a>
+      <a onclick="navToSection('roastery')" data-page="roastery">Roastery</a>
+      <a onclick="navToSection('cafe')" data-page="cafe">Our Cafe</a>
+      <a onclick="navToSection('founder')" data-page="founder">Founder</a>
+      <a onclick="goToLogin()" data-page="login">Login</a>
+      <a onclick="navTo('cart')" data-page="cart" class="cart-link">🛒 Keranjang <span class="cart-badge" id="cart-count">0</span></a>
+    </nav>
+  </header>
+  <script>
+  // ===== UPDATE NAVBAR SETELAH LOGIN =====
+  function updateNavUser() {
+    var session = localStorage.getItem('kopikuba_session')
+                || sessionStorage.getItem('kopikuba_session');
+
+    if (!session) return;
+
+    var user = JSON.parse(session);
+
+    var loginBtn = document.querySelector('[data-page="login"]');
+    if (loginBtn) {
+      loginBtn.textContent = user.avatar + ' ' + user.firstName;
+      loginBtn.onclick = function() {
+        if (confirm('Keluar dari akun ' + user.firstName + '?')) {
+          localStorage.removeItem('kopikuba_session');
+          sessionStorage.removeItem('kopikuba_session');
+          location.reload();
+        }
+      };
+    }
+  }
+  
+function goToLogin() {
+  var session = localStorage.getItem('kopikuba_session')
+              || sessionStorage.getItem('kopikuba_session');
+  if (session) {
+    // Sudah login — tanya mau logout tidak
+    var user = JSON.parse(session);
+    if (confirm('Keluar dari akun ' + user.firstName + '?')) {
+      localStorage.removeItem('kopikuba_session');
+      sessionStorage.removeItem('kopikuba_session');
+      location.reload();
+    }
+  } else {
+    // Belum login — pergi ke login.html
+    window.location.href = 'login.html';
+  }
+}
+
+  // ===== FUNGSI LOGIN =====
+  function handleLogin() {
+    var email    = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    var remember = document.getElementById('remember').checked;
+    var msg      = document.getElementById('login-msg');
+
+    // Reset pesan error
+    msg.className = 'login-msg';
+    msg.textContent = '';
+
+    // Validasi input kosong
+    if (!email || !password) {
+      msg.classList.add('error');
+      msg.textContent = '❌ Email dan password harus diisi.';
+      return;
+    }
+
+    // Ambil data users dari localStorage
+    var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
+
+    // Cari user yang cocok
+    var found = users.find(function(u) {
+      return u.email === email && u.password === password;
+    });
+
+    if (!found) {
+      msg.classList.add('error');
+      msg.textContent = '❌ Email atau password salah.';
+      return;
+    }
+
+    // Simpan sesi login
+    var sessionData = {
+      id:        found.id,
+      fullName:  found.fullName,
+      firstName: found.firstName,
+      avatar:    found.avatar,
+      email:     found.email
+    };
+
+    if (remember) {
+      localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+    } else {
+      sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+    }
+
+    // Update navbar langsung tanpa reload
+    updateNavUser();
+
+    // Kembali ke beranda
+    navTo('home');
+  }
+
+  // Panggil updateNavUser setelah DOM siap
+  document.addEventListener('DOMContentLoaded', updateNavUser); 
+</script>
+
+  <!-- ===== HOME PAGE ===== -->
+  <div id="page-home" class="page active">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1><span class="highlight-title">Kopi Nusantara</span></h1>
+        <p>
+          Bagi kami, "Kopi Nusantara" bukan sekadar geografi — ini tentang identitas.
+          Sebagai brand kopi yang tumbuh di Bogor, kami menghadirkan rasa, orang, dan ide
+          dari seluruh Indonesia, menjadikan setiap cangkir sebagai percakapan budaya.
+        </p>
+        <button class="btn-hero" onclick="navToSection('beans')">
+          Lihat Koleksi Kopi <span class="arrow">↓</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Coffee Beans -->
+    <section class="products" id="beans">
+      <h2 class="section-heading">Coffee Beans Selection</h2>
+      <div class="grid">
+        <div class="card reveal">
+          <div class="card-img-wrap">
+            <img src="https://plus.unsplash.com/premium_photo-1666976503799-4ef00906ab2b?w=600&auto=format&fit=crop&q=60" alt="Aceh Gayo">
+          </div>
+          <div class="card-body">
+            <h3>Aceh Gayo</h3>
+            <span class="card-origin">Aceh Tengah, Sumatra</span>
+            <span class="card-price">Rp 150.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Aceh Gayo" data-price="150000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal reveal-d1">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1660071139672-55a1607f72fe?w=600&auto=format&fit=crop&q=60" alt="Toraja">
+          </div>
+          <div class="card-body">
+            <h3>Toraja</h3>
+            <span class="card-origin">Sulawesi Selatan</span>
+            <span class="card-price">Rp 140.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Toraja" data-price="140000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal reveal-d2">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1672570050756-4f1953bde478?w=600&auto=format&fit=crop&q=60" alt="Kintamani Bali">
+          </div>
+          <div class="card-body">
+            <h3>Kintamani Bali</h3>
+            <span class="card-origin">Kintamani, Bali</span>
+            <span class="card-price">Rp 160.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Kintamani Bali" data-price="160000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1561986845-fbeb7f7913d8?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Flores Bajawa">
+          </div>
+          <div class="card-body">
+            <h3>Flores Bajawa</h3>
+            <span class="card-origin">Ngada, Nusa Tenggara Timur</span>
+            <span class="card-price">Rp 155.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Flores Bajawa" data-price="155000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal reveal-d1">
+          <div class="card-img-wrap">
+            <img src="https://images.pexels.com/photos/36249837/pexels-photo-36249837.jpeg" alt="Papua Wamena">
+          </div>
+          <div class="card-body">
+            <h3>Papua Wamena</h3>
+            <span class="card-origin">Lembah Baliem, Papua</span>
+            <span class="card-price">Rp 175.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Papua Wamena" data-price="175000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal reveal-d2">
+          <div class="card-img-wrap">
+            <img src="https://media.istockphoto.com/id/1337868547/id/foto/biji-kopi-merah-organik-100-di-tangan-dan-keranjang-petani-di-pertanian-nasional-chiang-mai.webp?a=1&b=1&s=612x612&w=0&k=20&c=jLuwT2qgJDlcClSiL5AP825NlJ9EI8knPQWc4xLcng8=">
+          </div>
+          <div class="card-body">
+            <h3>Mandailing Natal</h3>
+            <span class="card-origin">Tapanuli Selatan, Sumatra</span>
+            <span class="card-price">Rp 145.000 <small>/ 250gr</small></span>
+            <div class="card-cart-row">
+              <div class="card-qty-control">
+                <button class="card-qty-btn" onclick="cardQty(this,-1)">−</button>
+                <span class="card-qty-value">1</span>
+                <button class="card-qty-btn" onclick="cardQty(this,1)">+</button>
+              </div>
+              <button class="btn-add-cart" data-name="Mandailing Natal" data-price="145000" onclick="addToCart(this)">+ Keranjang</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roastery -->
+    <section class="roastery" id="roastery">
+      <h2 class="section-heading">Our Coffee Roastery</h2>
+      <div class="bio-grid">
+        <div class="bio-card reveal">
+          <div class="bio-card-img">
+            <img src="https://images.unsplash.com/photo-1591017940761-68725ef7d016?w=600&auto=format&fit=crop&q=60" alt="Aceh Gayo">
+          </div>
+          <div class="bio-card-body">
+            <h3>Aceh Gayo</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Aceh Tengah, Sumatra</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Bold, earthy, sedikit herbal</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 1.200–1.600 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Body kuat dengan aroma rempah</div>
+          </div>
+        </div>
+
+        <div class="bio-card reveal reveal-d1">
+          <div class="bio-card-img">
+            <img src="https://images.unsplash.com/photo-1582426007790-f5a2e2392dd3?w=600&auto=format&fit=crop&q=60" alt="Toraja">
+          </div>
+          <div class="bio-card-body">
+            <h3>Toraja</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Sulawesi Selatan</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Kompleks, fruity, sedikit spicy</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 1.100–1.800 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Keasaman seimbang, aftertaste manis</div>
+          </div>
+        </div>
+
+        <div class="bio-card reveal reveal-d2">
+          <div class="bio-card-img">
+            <img src="https://plus.unsplash.com/premium_photo-1677829177642-30def98b0963?w=600&auto=format&fit=crop&q=60" alt="Kintamani Bali">
+          </div>
+          <div class="bio-card-body">
+            <h3>Kintamani Bali</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Kintamani, Bali</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Bright, citrusy, floral</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 1.200–1.500 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Rasa jeruk segar khas vulkanik Bali</div>
+          </div>
+        </div>
+
+        <div class="bio-card reveal">
+          <div class="bio-card-img">
+            <img src="https://images.unsplash.com/photo-1578019448201-09ad2ac7995a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZmxvcmVzJTIwaW5kb25lc2lhfGVufDB8fDB8fHww" alt="Flores Bajawa">
+          </div>
+          <div class="bio-card-body">
+            <h3>Flores Bajawa</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Ngada, Nusa Tenggara Timur</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Coklat gelap, nutty, sedikit smoky</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 1.000–1.800 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Full body dengan finish panjang dan hangat</div>
+          </div>
+        </div>
+
+        <div class="bio-card reveal reveal-d1">
+          <div class="bio-card-img">
+            <img src="https://plus.unsplash.com/premium_photo-1697730044079-0ff3fda28bb7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fHBhcHVhfGVufDB8fDB8fHww" alt="Papua Wamena">
+          </div>
+          <div class="bio-card-body">
+            <h3>Papua Wamena</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Lembah Baliem, Papua</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Clean, sweet, sedikit caramel</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 1.500–2.000 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Organik murni tanpa pestisida, sangat langka</div>
+          </div>
+        </div>
+
+        <div class="bio-card reveal reveal-d2">
+          <div class="bio-card-img">
+            <img src="https://images.unsplash.com/photo-1720034236861-74cc8dc5a8c6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjB8fHN1bWF0cmF8ZW58MHx8MHx8fDA%3D" alt="Mandailing Natal">
+          </div>
+          <div class="bio-card-body">
+            <h3>Mandailing Natal</h3>
+            <div class="bio-detail"><span class="bio-detail-label">Asal</span> Tapanuli Selatan, Sumatra</div>
+            <div class="bio-detail"><span class="bio-detail-label">Rasa</span> Earthy, dark chocolate, cedar</div>
+            <div class="bio-detail"><span class="bio-detail-label">Altitude</span> 900–1.500 mdpl</div>
+            <div class="bio-detail"><span class="bio-detail-label">Catatan</span> Wet-hulled process, low acidity khas Sumatra</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cafe -->
+    <section class="cafe" id="cafe">
+      <h2 class="section-heading">Our Cafe</h2>
+      <div class="cafe-content">
+        <div class="cafe-img-wrap reveal">
+          <img src="https://images.pexels.com/photos/18617711/pexels-photo-18617711.jpeg?auto=compress&w=600" alt="Interior Cafe">
+        </div>
+        <div class="cafe-text reveal reveal-d1">
+          <p>
+            Kopi Kuba bukan sekadar ruang, melainkan panggung di mana aroma kopi menyatukan jiwa-jiwa.
+            Di balik dinding kayu yang hangat dan bisikan harum biji kopi segar, tercipta tempat pertemuan
+            rasa, cerita, dan inspirasi.
+          </p>
+          <div class="cafe-location">
+            <span>📍</span> Jl. Pajajaran, Bogor — Buka setiap hari, 08.00–22.00
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Founder -->
+    <section class="founder" id="founder">
+      <h2 class="section-heading">Meet Our Founders</h2>
+      <div class="founder-content">
+        <div class="founder-intro reveal">
+          <p>
+            Kopi Kuba lahir dari passion satu Tim yang percaya bahwa kopi bukan sekadar minuman,
+            melainkan jembatan penghubung antara petani, pecinta kopi, dan budaya Indonesia.
+          </p>
+        </div>
+
+        <div class="founder-grid">
+          <div class="founder-card reveal">
+            <div class="founder-img-wrap">
+              <img src="https://thumbs.dreamstime.com/b/two-guys-girl-stylish-casual-bright-dark-colorful-clothes-posing-together-studio-grey-background-137462538.jpg?w=768" alt="Albar-Joshua-farsya">
+              <div class="founder-overlay">
+                <h3>Albar-Joshua-farsya</h3>
+                <span class="founder-role">Co-Founder & Master Roaster</span>
+              </div>
+            </div>
+            <div class="founder-info">
+              <p class="founder-bio">
+                Mahasiswa yang jatuh cinta dengan dunia kopi sejak berkeliling Margonda dan Jakarta Raya.
+                Mereka bertanggung jawab atas proses roasting dan pengembangan rasa kopi Kuba.
+              </p>
+              <div class="founder-quote">
+                "Setiap biji kopi punya cerita. Tugas kami adalah menceritakannya dengan baik."
+              </div>
+              <div class="founder-social">
+                <a href="#" class="social-link">📘</a>
+                <a href="#" class="social-link">📷</a>
+                <a href="#" class="social-link">🐦</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="founder-card reveal reveal-d1">
+            <div class="founder-img-wrap">
+              <img src="https://i.pinimg.com/736x/87/47/82/874782152b9b1c78b439ef46b51f672e.jpg" alt="Raditya-fadia">
+              <div class="founder-overlay">
+                <h3>Raditya-fadia</h3>
+                <span class="founder-role">Co-Founder & Brand Director</span>
+              </div>
+            </div>
+            <div class="founder-info">
+              <p class="founder-bio">
+                Ahli pemasaran yang percaya bahwa brand kopi harus menceritakan kisah autentik.
+                Raditya mengelola hubungan dengan petani dan membangun komunitas pecinta kopi.
+              </p>
+              <div class="founder-quote">
+                "Kopi Kuba bukan tentang penjualan, tapi tentang membangun koneksi yang bermakna."
+              </div>
+              <div class="founder-social">
+                <a href="#" class="social-link">📘</a>
+                <a href="#" class="social-link">📷</a>
+                <a href="#" class="social-link">🐦</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="founder-story reveal reveal-d2">
+          <h3>Our Story</h3>
+          <div class="story-content">
+            <div class="story-text">
+              <p>
+                Kisah Kopi Kuba dimulai pada tahun 2026 ketika mereka bertemu di sebuah workshop kopi di Kemang.
+                mereka ber-5 terinspirasi oleh kekayaan kopi Indonesia yang belum tergali secara maksimal.
+              </p>
+              <p>
+                Setelah berkeliling dari Aceh hingga Papua, mereka memutuskan untuk membangun brand yang tidak hanya
+                menjual kopi, tapi juga menceritakan perjalanan panjang biji kopi dari kebun hingga ke cangkir Anda.
+              </p>
+              <p>
+                Hari ini, Kopi Kuba telah bekerja sama dengan lebih dari 50 petani di 6 provinsi,
+                menghadirkan cita rasa Nusantara yang autentik dan berkualitas tinggi.
+              </p>
+            </div>
+            <div class="story-stats">
+              <div class="stat-item">
+                <span class="stat-number">35+</span>
+                <span class="stat-label">Petani Partner</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">6</span>
+                <span class="stat-label">Provinsi</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">2026</span>
+                <span class="stat-label">Tahun Berdiri</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">28K+</span>
+                <span class="stat-label">Pelanggan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="logo">☕ Kopi Kuba</div>
+          <p>Cita rasa kopi terbaik Nusantara, langsung dari petani ke cangkir Anda.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Menu</h4>
+          <a onclick="navToSection('beans')">Coffee Beans</a>
+          <a onclick="navToSection('roastery')">Roastery</a>
+          <a onclick="navToSection('cafe')">Our Cafe</a>
+          <a onclick="navToSection('founder')">Founder</a>
+        </div>
+        <div class="footer-links">
+          <h4>Kontak</h4>
+          <a>info@kopikuba.com</a>
+          <a>@kopikuba</a>
+          <a>+62 812-3456-7890</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Kopi Kuba · Bogor, Indonesia</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===== LOGIN PAGE ===== -->
+  <div id="page-login" class="page">
+    <div class="login-page">
+      <div class="login-container">
+        <div class="login-icon">☕</div>
+        <h2>Selamat Datang</h2>
+        <p>Masuk ke akun Kopi Kuba Anda</p>
+        <div id="login-msg" class="login-msg"></div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="nama@email.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Minimal 6 karakter">
+        </div>
+        <div class="login-options">
+          <div class="checkbox-group">
+            <input type="checkbox" id="remember">
+            <label for="remember">Ingat saya</label>
+          </div>
+          <a class="forgot-link" href="#">Lupa Password?</a>
+        </div>
+        <button class="btn-login" onclick="handleLogin()">Masuk</button>
+        <div class="login-footer">
+          Belum punya akun? <a href="register.html">Daftar di sini</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CART PAGE ===== -->
+  <div id="page-cart" class="page">
+    <div class="cart-page">
+      <div id="cart">
+        <div class="cart-header">
+          <h2>Keranjang</h2>
+          <span class="cart-header-count" id="cart-header-count">0 item</span>
+        </div>
+        <ul id="cart-items"></ul>
+        <div id="cart-summary" class="cart-summary" style="display:none;">
+          <div class="cart-total-row">
+            <span class="cart-total-label">Total</span>
+            <span class="cart-total-value">Rp <span id="cart-total">0</span></span>
+          </div>
+          <div class="cart-actions">
+            <button class="btn-clear" onclick="clearCart()">Kosongkan</button>
+            <button class="btn-continue" onclick="navTo('home')">Belanja Lagi</button>
+            <button class="btn-checkout" onclick="checkout()">Checkout →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="cart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
