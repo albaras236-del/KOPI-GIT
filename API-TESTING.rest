@@ -1,0 +1,54 @@
+// Test file untuk menguji API endpoints
+// Gunakan di Postman atau REST Client extension di VS Code
+
+// ===== 1. Register User =====
+POST http://localhost:3000/api/register
+Content-Type: application/json
+
+{
+  "firstName": "Budi",
+  "lastName": "Santoso",
+  "email": "budi@email.com",
+  "phone": "+62812345678",
+  "password": "password123",
+  "avatar": "☕"
+}
+
+###
+
+// ===== 2. Login User =====
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+  "email": "budi@email.com",
+  "password": "password123"
+}
+
+###
+
+// ===== 3. Get User Profile =====
+GET http://localhost:3000/api/user/1
+
+###
+
+// ===== 4. Update User Profile =====
+PUT http://localhost:3000/api/user/1
+Content-Type: application/json
+
+{
+  "firstName": "Budi",
+  "lastName": "Santoso",
+  "phone": "+62812345678",
+  "avatar": "🌙"
+}
+
+###
+
+// ===== 5. Get All Users =====
+GET http://localhost:3000/api/users
+
+###
+
+// ===== 6. Test Server =====
+GET http://localhost:3000/api/test

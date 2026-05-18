@@ -80,44 +80,60 @@ function handleLogin() {
     return;
   }
 
-  // Cek ke data registrasi di localStorage
-  var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
-  var found = users.find(function(u) {
-    return u.email === email && u.password === pw;
-  });
+  // Send login request to backend
+  fetch('http://localhost:3000/api/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: email,
+      password: pw
+    })
+  })
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    if (data.success) {
+      // Simpan sesi login
+      var sessionData = {
+        id: data.user.id,
+        fullName: data.user.firstName + ' ' + data.user.lastName,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        avatar: data.user.avatar,
+        email: data.user.email,
+        phone: data.user.phone
+      };
 
-  if (!found) {
+      if (remember) {
+        localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+      } else {
+        sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
+      }
+
+      // Tampilkan pesan sukses
+      msg.className = 'login-msg success';
+      msg.textContent = '✅ Login berhasil! Mengalihkan...';
+
+      setTimeout(function() {
+        msg.style.display = 'none';
+        msg.className = 'login-msg';
+        showToast('Selamat datang, ' + data.user.firstName + '! ☕', data.user.avatar);
+        updateNavUser(); // ubah tombol Login → nama user
+        navTo('home');
+      }, 1200);
+    } else {
+      msg.className = 'login-msg error';
+      msg.textContent = '❌ ' + data.message;
+    }
+  })
+  .catch(function(error) {
+    console.error('Login error:', error);
     msg.className = 'login-msg error';
-    msg.textContent = '❌ Email atau password salah.';
-    return;
-  }
-
-  // Simpan sesi login
-  var sessionData = {
-    id:        found.id,
-    fullName:  found.fullName,
-    firstName: found.firstName,
-    avatar:    found.avatar,
-    email:     found.email
-  };
-
-  if (remember) {
-    localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-  } else {
-    sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-  }
-
-  // Tampilkan pesan sukses
-  msg.className = 'login-msg success';
-  msg.textContent = '✅ Login berhasil! Mengalihkan...';
-
-  setTimeout(function() {
-    msg.style.display = 'none';
-    msg.className = 'login-msg';
-    showToast('Selamat datang, ' + found.firstName + '! ☕', found.avatar);
-    updateNavUser(); // ubah tombol Login → nama user
-    navTo('home');
-  }, 1200);
+    msg.textContent = '❌ Gagal terhubung ke server. Pastikan server berjalan di http://localhost:3000';
+  });
 }
 
 // Enter key for login
