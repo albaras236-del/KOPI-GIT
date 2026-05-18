@@ -689,6 +689,9 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    // ===== API Configuration =====
+    const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
+
     // ===== Handle Register =====
     function handleRegister() {
       var fullName = document.getElementById('reg-name').value.trim();
@@ -733,7 +736,7 @@
         avatar: selectedAvatar
       };
 
-      fetch('http://localhost:3000/api/register', {
+      fetch(API_BASE_URL + '/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerPayload)
@@ -760,7 +763,7 @@
       })
       .catch(function(error) {
         console.error('Registration error:', error);
-        showErr('❌ Gagal terhubung ke server. Pastikan server berjalan di http://localhost:3000');
+        showErr('❌ Gagal terhubung ke server. Periksa koneksi ke backend (' + API_BASE_URL + ')');
       });
     }
 

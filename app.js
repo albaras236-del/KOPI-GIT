@@ -81,7 +81,7 @@ function handleLogin() {
   }
 
   // Try backend API first
-  fetch('http://localhost:3000/api/login', {
+  fetch(API_BASE_URL + '/api/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
