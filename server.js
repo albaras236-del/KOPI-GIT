@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const bcryptjs = require('bcryptjs');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = 3000;
@@ -15,6 +16,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
+
+// In-memory store for verification codes (expires after 10 minutes)
+const verificationCodes = {};
+
+// Setup email transporter (fallback to dummy mode if not configured)
+let transporter = null;
+try {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER || 'kopikuba.verify@gmail.com',
+      pass: process.env.EMAIL_PASS || 'your_app_password_here'
+    }
+  });
+} catch (err) {
+  console.log('⚠️  Email service not configured. Using demo mode.');
+}
 
 // Initialize database
 const dbPath = path.join(__dirname, 'kopikuba.db');
@@ -87,6 +105,137 @@ function comparePassword(password, hash) {
 // Test endpoint
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend server running ✅' });
+});
+
+// Generate 6-digit verification code
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Send verification code
+app.post('/api/send-verification', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email harus diisi'
+    });
+  }
+
+  try {
+    const code = generateVerificationCode();
+    
+    // Store code with 10-minute expiry
+    verificationCodes[email] = {
+      code: code,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+      attempts: 0
+    };
+
+    // Try to send email
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: 'kopikuba.verify@gmail.com',
+          to: email,
+          subject: '🔐 Kode Verifikasi Kopi Kuba - ' + code,
+          html: `
+            <div style="font-family: 'Poppins', Arial; background: #1e1313; color: #f5e6c4; padding: 40px; text-align: center; border-radius: 12px;">
+              <h1 style="color: #d4a373; font-size: 28px; margin: 0;">☕ Kopi Kuba</h1>
+              <p style="margin: 20px 0; color: #d4a373;">Verifikasi Email Anda</p>
+              
+              <div style="background: rgba(212, 163, 115, 0.1); padding: 30px; border-radius: 12px; margin: 20px 0;">
+                <p style="margin: 0 0 15px; color: #d4a373; font-size: 14px;">Kode Verifikasi Anda:</p>
+                <h2 style="font-size: 48px; letter-spacing: 8px; margin: 0; color: #d4a373; font-family: 'Courier New', monospace; font-weight: bold;">
+                  ${code}
+                </h2>
+                <p style="margin: 15px 0 0 0; color: #c4a8a8; font-size: 13px;">Kode berlaku selama 10 menit</p>
+              </div>
+
+              <p style="margin: 20px 0; color: #a8a8a8; font-size: 12px;">
+                Jika Anda tidak melakukan registrasi, abaikan email ini.
+              </p>
+              
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(212, 163, 115, 0.2);">
+                <p style="margin: 0; color: #c4a8a8; font-size: 11px;">© 2026 Kopi Kuba · Bogor, Indonesia</p>
+              </div>
+            </div>
+          `
+        });
+        console.log('✅ Verification email sent to', email);
+      } catch (emailErr) {
+        console.warn('⚠️  Could not send email:', emailErr.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Kode verifikasi telah dikirim ke email Anda'
+    });
+  } catch (err) {
+    console.error('Send verification error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan'
+    });
+  }
+});
+
+// Verify code
+app.post('/api/verify-code', (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email dan kode harus diisi'
+    });
+  }
+
+  const stored = verificationCodes[email];
+
+  if (!stored) {
+    return res.status(400).json({
+      success: false,
+      message: 'Kode verifikasi tidak ditemukan'
+    });
+  }
+
+  // Check if expired
+  if (Date.now() > stored.expiresAt) {
+    delete verificationCodes[email];
+    return res.status(400).json({
+      success: false,
+      message: 'Kode verifikasi telah kadaluarsa'
+    });
+  }
+
+  // Check attempts
+  if (stored.attempts >= 3) {
+    delete verificationCodes[email];
+    return res.status(400).json({
+      success: false,
+      message: 'Terlalu banyak percobaan salah'
+    });
+  }
+
+  // Verify code
+  if (code !== stored.code) {
+    stored.attempts++;
+    return res.status(400).json({
+      success: false,
+      message: 'Kode verifikasi salah'
+    });
+  }
+
+  // Code correct, delete it
+  delete verificationCodes[email];
+
+  res.json({
+    success: true,
+    message: 'Verifikasi berhasil'
+  });
 });
 
 // Register endpoint

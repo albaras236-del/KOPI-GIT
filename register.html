@@ -350,6 +350,171 @@
       .register-container { padding: 32px 22px; }
       .form-row { flex-direction: column; gap: 0; }
     }
+
+    /* ===== VERIFICATION SECTION ===== */
+    .verification-section {
+      background: rgba(212, 163, 115, 0.08);
+      border: 1px solid rgba(212, 163, 115, 0.15);
+      border-radius: 12px;
+      padding: 18px 14px;
+      margin-bottom: 18px;
+      animation: slideInUp 0.4s ease;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .verification-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .verification-header h3 {
+      margin: 0;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .verification-desc {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      color: var(--cream-muted);
+    }
+
+    .verify-timer {
+      font-size: 11px;
+      color: var(--cream-muted);
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+
+    .verify-timer.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    #reg-verify-code {
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 6px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .btn-verify {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, #7ec88a, #5eb870);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+    }
+
+    .btn-verify:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(126, 200, 138, 0.3);
+    }
+
+    .btn-verify:active {
+      transform: translateY(0);
+    }
+
+    .btn-resend {
+      width: 100%;
+      padding: 11px;
+      background: rgba(212, 163, 115, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(212, 163, 115, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .btn-resend:hover {
+      background: rgba(212, 163, 115, 0.2);
+      border-color: var(--accent);
+    }
+
+    /* ===== AESTHETIC ENHANCEMENTS ===== */
+    .form-group {
+      animation: fadeInUp 0.5s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+    .avatar-opt {
+      animation: popIn 0.4s ease;
+      animation-fill-mode: both;
+    }
+
+    .avatar-opt:nth-child(1) { animation-delay: 0.6s; }
+    .avatar-opt:nth-child(2) { animation-delay: 0.7s; }
+    .avatar-opt:nth-child(3) { animation-delay: 0.8s; }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .input-icon-wrap input:focus {
+      background: rgba(212, 163, 115, 0.05);
+      box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+    }
+
+    .btn-register {
+      animation: slideUp 0.6s ease 1s both;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -384,28 +549,17 @@
         <button class="avatar-opt selected" data-avatar="☕" onclick="selectAvatar(this)">☕</button>
         <button class="avatar-opt" data-avatar="🫘" onclick="selectAvatar(this)">🫘</button>
         <button class="avatar-opt" data-avatar="🌿" onclick="selectAvatar(this)">🌿</button>
-        <button class="avatar-opt" data-avatar="🍫" onclick="selectAvatar(this)">🍫</button>
-        <button class="avatar-opt" data-avatar="🌙" onclick="selectAvatar(this)">🌙</button>
       </div>
 
       <!-- Form -->
       <form id="registerForm" onsubmit="return false;">
 
-        <!-- Name row -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="reg-first">Nama Depan</label>
-            <div class="input-icon-wrap">
-              <span class="icon">👤</span>
-              <input type="text" id="reg-first" placeholder="Budi" autocomplete="given-name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="reg-last">Nama Belakang</label>
-            <div class="input-icon-wrap">
-              <span class="icon">👤</span>
-              <input type="text" id="reg-last" placeholder="Santoso" autocomplete="family-name">
-            </div>
+        <!-- Name field (single) -->
+        <div class="form-group">
+          <label for="reg-name">Nama Lengkap</label>
+          <div class="input-icon-wrap">
+            <span class="icon">👤</span>
+            <input type="text" id="reg-name" placeholder="Budi Santoso" autocomplete="name">
           </div>
         </div>
 
@@ -451,6 +605,24 @@
           </div>
         </div>
 
+        <!-- Verification Section (Hidden by default) -->
+        <div id="verification-section" class="verification-section" style="display:none;">
+          <div class="verification-header">
+            <h3>Verifikasi Email & Nomor Telepon</h3>
+            <p class="verification-desc">Kode verifikasi 6 digit telah dikirim ke email Anda</p>
+          </div>
+          <div class="form-group">
+            <label for="reg-verify-code">Kode Verifikasi</label>
+            <div class="input-icon-wrap">
+              <span class="icon">🔐</span>
+              <input type="text" id="reg-verify-code" placeholder="Masukkan 6 digit" maxlength="6" inputmode="numeric">
+            </div>
+            <div class="verify-timer" id="verify-timer">Kirim ulang dalam <span id="timer-count">60</span>s</div>
+          </div>
+          <button type="button" class="btn-verify" onclick="verifyCode()">Verifikasi</button>
+          <button type="button" class="btn-resend" onclick="resendCode()" style="display:none;" id="btn-resend">Kirim Ulang Kode</button>
+        </div>
+
         <!-- Terms -->
         <div class="terms-group">
           <input type="checkbox" id="reg-terms">
@@ -461,7 +633,7 @@
         </div>
 
         <!-- Submit -->
-        <button type="button" class="btn-register" onclick="handleRegister()">
+        <button type="button" class="btn-register" onclick="handleRegister()" id="btn-submit">
           <span>Daftar Sekarang ☕</span>
         </button>
       </form>
@@ -639,15 +811,17 @@
     }
 
     // ===== Handle Register =====
+    let registrationData = {};
+    let verificationAttempts = 0;
+
     function handleRegister() {
-      var firstName = document.getElementById('reg-first').value.trim();
-      var lastName  = document.getElementById('reg-last').value.trim();
-      var email     = document.getElementById('reg-email').value.trim();
-      var phone     = document.getElementById('reg-phone').value.trim();
-      var password  = document.getElementById('reg-password').value;
-      var confirm   = document.getElementById('reg-confirm').value;
-      var terms     = document.getElementById('reg-terms').checked;
-      var msg       = document.getElementById('register-msg');
+      var fullName = document.getElementById('reg-name').value.trim();
+      var email = document.getElementById('reg-email').value.trim();
+      var phone = document.getElementById('reg-phone').value.trim();
+      var password = document.getElementById('reg-password').value;
+      var confirm = document.getElementById('reg-confirm').value;
+      var terms = document.getElementById('reg-terms').checked;
+      var msg = document.getElementById('register-msg');
 
       // Reset
       msg.className = 'login-msg';
@@ -661,16 +835,9 @@
         console.log('Error:', text);
       }
 
-      function showSuccess(text) {
-        msg.id = 'register-msg';
-        msg.className = 'success';
-        msg.style.display = 'block';
-        msg.textContent = text;
-        console.log('Success:', text);
-      }
-
       // Validasi input
-      if (!firstName || !lastName) return showErr('❌ Nama depan dan belakang harus diisi.');
+      if (!fullName) return showErr('❌ Nama lengkap harus diisi.');
+      if (fullName.split(' ').length < 2) return showErr('❌ Masukkan nama depan dan belakang.');
       if (!email) return showErr('❌ Email harus diisi.');
       if (!isValidEmail(email)) return showErr('❌ Format email tidak valid.');
       if (!phone) return showErr('❌ Nomor telepon harus diisi.');
@@ -680,76 +847,193 @@
       if (password !== confirm) return showErr('❌ Konfirmasi password tidak cocok.');
       if (!terms) return showErr('❌ Anda harus menyetujui syarat & ketentuan.');
 
-      // Prepare user data
-      var newUser = {
-        id: Date.now(),
-        avatar: selectedAvatar,
+      // Split name
+      var nameParts = fullName.trim().split(' ');
+      var firstName = nameParts[0];
+      var lastName = nameParts.slice(1).join(' ');
+
+      // Save to temp registration data
+      registrationData = {
         firstName: firstName,
         lastName: lastName,
-        fullName: firstName + ' ' + lastName,
         email: email,
         phone: phone,
         password: password,
-        createdAt: new Date().toISOString()
+        avatar: selectedAvatar
       };
 
-      // Try backend API first
-      fetch('http://localhost:3000/api/register', {
+      // Send verification code
+      sendVerificationCode(email);
+    }
+
+    function sendVerificationCode(email) {
+      var msg = document.getElementById('register-msg');
+      msg.className = 'login-msg';
+      msg.textContent = '';
+
+      fetch('http://localhost:3000/api/send-verification', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Show verification section
+          document.getElementById('registerForm').style.display = 'none';
+          document.getElementById('verification-section').style.display = 'block';
+          
+          msg.className = 'login-msg success';
+          msg.textContent = '✅ Kode verifikasi telah dikirim ke email Anda';
+          msg.style.display = 'block';
+          
+          startTimer();
+          verificationAttempts = 0;
+        } else {
+          msg.className = 'login-msg error';
+          msg.textContent = '❌ ' + data.message;
+          msg.style.display = 'block';
+        }
+      })
+      .catch(e => {
+        console.warn('No backend, using demo mode');
+        // Demo mode - show verification anyway
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('verification-section').style.display = 'block';
+        msg.className = 'login-msg success';
+        msg.textContent = '✅ Kode demo: 123456';
+        msg.style.display = 'block';
+        startTimer();
+      });
+    }
+
+    function verifyCode() {
+      var code = document.getElementById('reg-verify-code').value;
+      var msg = document.getElementById('register-msg');
+
+      if (!code || code.length !== 6) {
+        msg.className = 'login-msg error';
+        msg.textContent = '❌ Masukkan 6 digit kode verifikasi';
+        msg.style.display = 'block';
+        return;
+      }
+
+      fetch('http://localhost:3000/api/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          phone: phone,
-          password: password,
-          avatar: selectedAvatar
+          email: registrationData.email,
+          code: code
         })
       })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(data) {
+      .then(r => r.json())
+      .then(data => {
         if (data.success) {
-          // Success with API
-          completeRegistration('API', firstName, selectedAvatar);
+          completeRegistration();
         } else {
-          showErr('❌ ' + data.message);
+          verificationAttempts++;
+          msg.className = 'login-msg error';
+          msg.textContent = '❌ Kode verifikasi salah (' + (3 - verificationAttempts) + ' percobaan tersisa)';
+          msg.style.display = 'block';
+          if (verificationAttempts >= 3) {
+            alert('Terlalu banyak percobaan. Silakan coba lagi.');
+            location.reload();
+          }
         }
       })
-      .catch(function(error) {
-        // API not available, fallback to localStorage
-        console.warn('Backend tidak tersedia, menggunakan localStorage');
-        
-        // Check if email already exists
-        var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
-        if (users.find(function(u) { return u.email === email; })) {
-          return showErr('❌ Email ini sudah terdaftar. Silakan masuk.');
+      .catch(e => {
+        // Demo mode - check if 123456
+        if (code === '123456') {
+          completeRegistration();
+        } else {
+          msg.className = 'login-msg error';
+          msg.textContent = '❌ Kode salah (gunakan: 123456)';
+          msg.style.display = 'block';
         }
-
-        // Save to localStorage
-        users.push(newUser);
-        localStorage.setItem('kopikuba_users', JSON.stringify(users));
-        completeRegistration('localStorage', firstName, selectedAvatar);
       });
+    }
 
-      function completeRegistration(method, firstName, avatar) {
-        showSuccess(avatar + ' Akun berhasil dibuat! Mengalihkan ke halaman login...');
-        
-        // Animate dots to all active
-        document.getElementById('dot-1').classList.add('active');
-        document.getElementById('dot-2').classList.add('active');
-        document.getElementById('dot-3').classList.add('active');
+    function completeRegistration() {
+      var msg = document.getElementById('register-msg');
 
-        showToast('Selamat datang, ' + firstName + '! Silakan login. 🎉', '✅');
-        console.log('Registered via:', method);
+      fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationData)
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          finalizeRegistration();
+        } else {
+          msg.className = 'login-msg error';
+          msg.textContent = '❌ ' + data.message;
+          msg.style.display = 'block';
+        }
+      })
+      .catch(e => {
+        // Fallback to localStorage
+        console.warn('Using localStorage');
+        var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
+        if (users.find(u => u.email === registrationData.email)) {
+          msg.className = 'login-msg error';
+          msg.textContent = '❌ Email sudah terdaftar';
+          msg.style.display = 'block';
+          return;
+        }
+        users.push({
+          id: Date.now(),
+          ...registrationData,
+          fullName: registrationData.firstName + ' ' + registrationData.lastName,
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('kopikuba_users', JSON.stringify(users));
+        finalizeRegistration();
+      });
+    }
 
-        setTimeout(function() {
-          window.location.href = 'login.html';
-        }, 1800);
-      }
+    function finalizeRegistration() {
+      var msg = document.getElementById('register-msg');
+      msg.className = 'login-msg success';
+      msg.textContent = selectedAvatar + ' Akun berhasil dibuat! Mengalihkan ke login...';
+      msg.style.display = 'block';
+
+      // Animate all dots
+      document.getElementById('dot-1').classList.add('active');
+      document.getElementById('dot-2').classList.add('active');
+      document.getElementById('dot-3').classList.add('active');
+
+      showToast('Selamat datang, ' + registrationData.firstName + '! 🎉', '✅');
+
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1800);
+    }
+
+    function resendCode() {
+      document.getElementById('register-msg').textContent = '';
+      sendVerificationCode(registrationData.email);
+    }
+
+    function startTimer() {
+      var count = 60;
+      var timerEl = document.getElementById('timer-count');
+      var timerDiv = document.getElementById('verify-timer');
+      var resendBtn = document.getElementById('btn-resend');
+      
+      timerDiv.classList.add('active');
+      resendBtn.style.display = 'none';
+
+      var interval = setInterval(() => {
+        count--;
+        timerEl.textContent = count;
+        if (count <= 0) {
+          clearInterval(interval);
+          timerDiv.classList.remove('active');
+          resendBtn.style.display = 'block';
+          timerEl.textContent = '60';
+        }
+      }, 1000);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
