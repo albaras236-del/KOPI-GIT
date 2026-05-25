@@ -54,8 +54,6 @@ Website e-commerce kopi Nusantara dengan desain visual yang telah di-upgrade unt
 
 - `index.html` - Halaman utama dengan semua section termasuk **Founder**
 - `style.css` - Styling dengan upgrade visual dan **styling Founder**
-- `login.css` - Styling halaman login
-- `keranjang.css` - Styling halaman keranjang
 - `app.js` - JavaScript untuk interaktivitas
 - `cart.js` - Logika keranjang belanja
 

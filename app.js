@@ -1,3 +1,6 @@
+// ===== API Base URL =====
+const API_BASE_URL = window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:3000';
+
 // ===== Navigation =====
 function navTo(page) {
   closeMenu();
@@ -10,8 +13,6 @@ function navTo(page) {
   if (navLink) navLink.classList.add('nav-active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-function showPage(page) { navTo(page); }
 
 function navToSection(id) {
   closeMenu();

@@ -63,8 +63,6 @@ Pastikan folder project berisi:
 kopi-projrect/
 ├── index.html
 ├── style.css
-├── login.css
-├── keranjang.css
 ├── app.js
 ├── cart.js
 └── README.md
