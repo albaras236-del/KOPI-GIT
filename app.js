@@ -6,6 +6,10 @@ function navTo(page) {
   closeMenu();
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   var target = document.getElementById('page-' + page);
+  if (!target) {
+    window.location.href = page === 'home' ? 'index.html' : page + '.html';
+    return;
+  }
   target.classList.add('active');
   requestAnimationFrame(function() { target.style.opacity = '1'; });
   document.querySelectorAll('nav a').forEach(function(a) { a.classList.remove('nav-active'); });
@@ -17,6 +21,10 @@ function navTo(page) {
 function navToSection(id) {
   closeMenu();
   var home = document.getElementById('page-home');
+  if (!home) {
+    window.location.href = 'index.html#' + id;
+    return;
+  }
   if (!home.classList.contains('active')) {
     document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
     home.classList.add('active');
@@ -28,7 +36,8 @@ function navToSection(id) {
   setTimeout(function() {
     var el = document.getElementById(id);
     if (el) {
-      var hh = document.querySelector('header').offsetHeight;
+      var header = document.querySelector('header');
+      var hh = header ? header.offsetHeight : 0;
       window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - hh - 8, behavior: 'smooth' });
     }
   }, 50);
@@ -36,13 +45,17 @@ function navToSection(id) {
 
 // ===== Mobile Menu =====
 function toggleMenu() {
-  document.getElementById('main-nav').classList.toggle('open');
-  document.getElementById('nav-overlay').classList.toggle('active');
+  var nav = document.getElementById('main-nav');
+  var overlay = document.getElementById('nav-overlay');
+  if (nav) nav.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('active');
 }
 
 function closeMenu() {
-  document.getElementById('main-nav').classList.remove('open');
-  document.getElementById('nav-overlay').classList.remove('active');
+  var nav = document.getElementById('main-nav');
+  var overlay = document.getElementById('nav-overlay');
+  if (nav) nav.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
 }
 
 // ===== Toast =====
@@ -157,15 +170,20 @@ function handleLogin() {
       msg.style.display = 'none';
       msg.className = 'login-msg';
       showToast('Selamat datang, ' + user.firstName + '! ☕', user.avatar);
-      updateNavUser();
-      navTo('home');
+      if (typeof updateNavUser === 'function') updateNavUser();
+      if (document.getElementById('page-home')) {
+        navTo('home');
+      } else {
+        window.location.href = 'index.html';
+      }
     }, 1200);
   }
 }
 
 // Enter key for login
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) {
+  var loginPage = document.getElementById('page-login');
+  if (e.key === 'Enter' && loginPage && loginPage.classList.contains('active')) {
     handleLogin();
   }
 });

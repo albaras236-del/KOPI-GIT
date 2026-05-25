@@ -11,6 +11,14 @@ function cardQty(btn, delta) {
 // ===== Cart State =====
 var cart = [];
 
+function goShopping() {
+  if (typeof navTo === 'function') {
+    navTo('home');
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
 // ===== Add to Cart =====
 function addToCart(btn) {
   var row = btn.closest('.card-cart-row');
@@ -107,13 +115,20 @@ function updateCart() {
     hc.textContent = tq + ' item';
   }
 
-  badge.textContent = tq;
-  badge.classList.remove('bump');
-  void badge.offsetWidth;
-  badge.classList.add('bump');
+  if (badge) {
+    badge.textContent = tq;
+    badge.classList.remove('bump');
+    void badge.offsetWidth;
+    badge.classList.add('bump');
+  }
 }
 
 // Initialize cart on load
 document.addEventListener('DOMContentLoaded', function() {
+  if (typeof window.navTo !== 'function') {
+    window.navTo = function(page) {
+      window.location.href = page === 'home' ? 'index.html' : page + '.html';
+    };
+  }
   updateCart();
 });
