@@ -4,6 +4,7 @@
   "description": "Aplikasi e-commerce kopi Nusantara",
   "main": "server.js",
   "scripts": {
+    "db:setup": "node setup-database.js",
     "start": "node server.js"
   },
   "dependencies": {
