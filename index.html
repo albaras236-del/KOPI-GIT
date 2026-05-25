@@ -6,6 +6,26 @@
   <title>Kopi Kuba</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            kopi: '#2b1d1d',
+            kuba: '#d4a373',
+            cream: '#f5e6c4'
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['Poppins', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -147,24 +167,77 @@ function goToLogin() {
   <div id="page-home" class="page active">
 
     <!-- Hero -->
-    <section class="hero">
-      <div class="hero-content">
-        <h1><span class="highlight-title">Kopi Nusantara</span></h1>
-        <p>
-          Bagi kami, "Kopi Nusantara" bukan sekadar geografi — ini tentang identitas.
-          Sebagai brand kopi yang tumbuh di Bogor, kami menghadirkan rasa, orang, dan ide
-          dari seluruh Indonesia, menjadikan setiap cangkir sebagai percakapan budaya.
-        </p>
-        <button class="btn-hero" onclick="navToSection('beans')">
-          Lihat Koleksi Kopi <span class="arrow">↓</span>
-        </button>
+    <section class="hero flex items-center">
+      <div class="hero-content mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 px-5 md:px-8 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <div class="hero-copy">
+          <span class="hero-status">Buka hari ini</span>
+          <p class="hero-eyebrow">Kopi, roti, dan tetangga Bogor</p>
+          <h1><span class="highlight-title">Kopi Kuba</span></h1>
+          <p>
+            Kedai kopi tetangga dengan rasa Nusantara yang dekat, hangat, dan konsisten.
+            Dari es kopi susu gula aren sampai biji kopi pilihan, semuanya dibuat untuk
+            menemani langkah harian tanpa terasa rumit.
+          </p>
+          <div class="hero-actions flex flex-wrap items-center gap-3">
+            <button class="btn-hero" onclick="navToSection('beans')">
+              Pesan Sekarang <span class="arrow">&darr;</span>
+            </button>
+            <button class="btn-hero-secondary" onclick="navToSection('cafe')">
+              Temukan Kedai
+            </button>
+          </div>
+          <div class="hero-proof-grid grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <span>Harga bersahabat</span>
+            <span>Biji Nusantara</span>
+            <span>Roasting harian</span>
+          </div>
+        </div>
+
+        <div class="hero-stack grid gap-4">
+          <article class="hero-feature-card hero-feature-main">
+            <span class="feature-kicker">Menu hari ini</span>
+            <h2>Es Kopi Susu Kuba</h2>
+            <p>Espresso, susu segar, dan gula aren dengan opsi less sugar.</p>
+            <ul>
+              <li>Best seller harian</li>
+              <li>Dine-in dan takeaway</li>
+              <li>Bisa dipesan online</li>
+            </ul>
+          </article>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <article class="hero-feature-card">
+              <span class="feature-kicker">Kudapan</span>
+              <h3>Dukungan UMKM</h3>
+              <p>Roti dan camilan lokal untuk teman ngopi cepat.</p>
+            </article>
+            <article class="hero-feature-card">
+              <span class="feature-kicker">Beans</span>
+              <h3>Origin Indonesia</h3>
+              <p>Aceh, Toraja, Bali, Flores, Papua, dan Mandailing.</p>
+            </article>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Coffee Beans -->
     <section class="products" id="beans">
-      <h2 class="section-heading">Coffee Beans Selection</h2>
-      <div class="grid">
+      <div class="product-shell mx-auto max-w-6xl px-5 md:px-8">
+        <div class="section-intro mx-auto max-w-3xl text-center">
+          <span class="section-kicker">Lini Produk</span>
+          <h2 class="section-heading">Menu Tetangga Kopi Kuba</h2>
+          <p class="section-subtitle">
+            Kategori dibuat jelas, pilihan cepat, dan grid produk mudah discan dari mobile sampai desktop.
+          </p>
+        </div>
+        <div class="product-tabs grid grid-cols-2 gap-3 md:grid-cols-4">
+          <button class="product-tab active" type="button">White-Milk</button>
+          <button class="product-tab" type="button">Black</button>
+          <button class="product-tab" type="button">Non-Coffee</button>
+          <button class="product-tab" type="button">Kudapan</button>
+        </div>
+
+        <div class="product-grid grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <div class="card reveal">
           <div class="card-img-wrap">
             <img src="https://plus.unsplash.com/premium_photo-1666976503799-4ef00906ab2b?w=600&auto=format&fit=crop&q=60" alt="Aceh Gayo">
@@ -278,6 +351,7 @@ function goToLogin() {
             </div>
           </div>
         </div>
+        </div>
       </div>
     </section>
 
@@ -381,6 +455,41 @@ function goToLogin() {
           <div class="cafe-location">
             <span>📍</span> Jl. Pajajaran, Bogor — Buka setiap hari, 08.00–22.00
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Neighborhood Stack -->
+    <section class="neighbor-stack px-5 py-16 md:px-8 lg:py-20">
+      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+        <article class="neighbor-visual reveal">
+          <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&auto=format&fit=crop&q=70" alt="Barista menyeduh kopi">
+          <div class="neighbor-visual-copy">
+            <span>Pesan di sini</span>
+            <h2>Ambil cepat, duduk santai, atau bawa pulang.</h2>
+          </div>
+        </article>
+        <div class="neighbor-cards grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <article class="neighbor-card reveal reveal-d1">
+            <span>01</span>
+            <h3>Menu Ringkas</h3>
+            <p>Pilihan utama tampil dulu agar pelanggan tidak lama mencari.</p>
+          </article>
+          <article class="neighbor-card reveal reveal-d2">
+            <span>02</span>
+            <h3>Order Online</h3>
+            <p>CTA disiapkan untuk alur GoFood, GrabFood, ShopeeFood, dan chat.</p>
+          </article>
+          <article class="neighbor-card reveal">
+            <span>03</span>
+            <h3>Tukudapan Style</h3>
+            <p>Kudapan dan produk pendamping dibuat sebagai stack kecil.</p>
+          </article>
+          <article class="neighbor-card reveal reveal-d1">
+            <span>04</span>
+            <h3>Roastery</h3>
+            <p>Cerita origin tetap ada untuk memperkuat karakter Kopi Kuba.</p>
+          </article>
         </div>
       </div>
     </section>

@@ -4,111 +4,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Kopi Kuba</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            kopi: '#2b1d1d',
+            kuba: '#d4a373',
+            cream: '#f5e6c4'
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['Poppins', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
   <div class="toast-container" id="toast-container"></div>
 
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-icon">☕</div>
-      <h2>Selamat Datang</h2>
-      <p>Masuk ke akun Kopi Kuba Anda</p>
-      <div id="login-msg" class="login-msg"></div>
-
-      <form id="loginForm" onsubmit="return false;">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="nama@email.com">
+  <main class="login-page px-5">
+    <section class="login-wrap grid w-full max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <div class="brand login-brand-stack flex flex-col items-start gap-5">
+        <div class="logo-mark">☕</div>
+        <div class="brand-text">
+          <strong>Kopi Kuba</strong>
+          <small>Rasa Nusantara</small>
         </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Minimal 6 karakter">
-        </div>
-        <div class="login-options">
-          <div class="checkbox-group">
-            <input type="checkbox" id="remember" name="remember">
-            <label for="remember">Ingat saya</label>
+        <div class="login-side-stack grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div class="login-side-card">
+            <span>Buka hari ini</span>
+            <p>Kopi tetangga Bogor untuk pesan cepat dan ambil santai.</p>
           </div>
-          <a class="forgot-link" href="#">Lupa Password?</a>
+          <div class="login-side-card">
+            <span>Member Kopi Kuba</span>
+            <p>Simpan pesanan favorit dan lanjutkan checkout lebih ringkas.</p>
+          </div>
         </div>
-        <button type="button" class="btn-login" onclick="handleLogin()">Masuk</button>
-      </form>
+      </div>
 
-      <div class="login-footer">
-        Belum punya akun? <a href="register.html">Daftar di sini</a>
+      <div class="login-card w-full">
+        <h2>Selamat Datang</h2>
+        <p class="muted">Masuk ke akun Kopi Kuba untuk melanjutkan</p>
+
+        <div id="login-msg" class="login-msg" aria-live="polite"></div>
+
+        <form id="loginForm" onsubmit="return false;" class="login-form">
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="nama@email.com" required>
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Minimal 6 karakter" required>
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox-inline"><input type="checkbox" id="remember" name="remember"> Ingat saya</label>
+            <a class="forgot-link" href="#">Lupa password?</a>
+          </div>
+
+          <button type="button" class="btn-login" onclick="handleLogin()">Masuk</button>
+        </form>
+
+        <div class="login-footer">Belum punya akun? <a href="register.html">Daftar di sini</a></div>
       </div>
-      <div style="margin-top:16px;">
-        <a href="index.html" style="color:var(--accent);text-decoration:none;font-size:14px;">← Kembali ke Beranda</a>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script>
-    function getStoredSession() {
-      return JSON.parse(localStorage.getItem('kopikuba_session') || sessionStorage.getItem('kopikuba_session') || 'null');
-    }
+    // Redirect jika sudah login
+    (function(){
+      var s = localStorage.getItem('kopikuba_session') || sessionStorage.getItem('kopikuba_session');
+      if (s) location.href = 'index.html';
 
-    document.addEventListener('DOMContentLoaded', function() {
-      if (getStoredSession()) {
-        window.location.href = 'index.html';
-      }
-    });
-
-    function handleLogin() {
-      var email    = document.getElementById('email').value.trim();
-      var password = document.getElementById('password').value;
-      var remember = document.getElementById('remember').checked;
-      var msg      = document.getElementById('login-msg');
-
-      msg.className = 'login-msg';
-      msg.textContent = '';
-
-      if (!email || !password) {
-        msg.classList.add('error');
-        msg.textContent = '❌ Email dan password harus diisi.';
-        return;
-      }
-
-      var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
-      var found = users.find(function(u) {
-        return u.email === email && u.password === password;
+      // Enter key submits
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') {
+          var active = document.activeElement;
+          if (active && (active.tagName === 'INPUT')) handleLogin();
+        }
       });
-
-      if (!found) {
-        msg.classList.add('error');
-        msg.textContent = '❌ Email atau password salah.';
-        return;
-      }
-
-      var sessionData = {
-        id:        found.id,
-        fullName:  found.fullName,
-        firstName: found.firstName,
-        avatar:    found.avatar,
-        email:     found.email
-      };
-
-      if (remember) {
-        localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-      } else {
-        sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-      }
-
-      msg.classList.add('success');
-      msg.textContent = '✅ Login berhasil! Mengalihkan...';
-
-      setTimeout(function() {
-        window.location.href = 'index.html';
-      }, 1000);
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleLogin();
-    });
+    })();
   </script>
 
+  <script src="app.js"></script>
 </body>
 </html>
