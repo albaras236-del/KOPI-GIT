@@ -1,3 +1,11 @@
+<?php
+session_start();
+// Jika sudah login, langsung tendang ke index
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -6,31 +14,21 @@
   <title>Login - Kopi Kuba</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
       corePlugins: { preflight: false },
       theme: {
         extend: {
-          colors: {
-            kopi: '#2b1d1d',
-            kuba: '#d4a373',
-            cream: '#f5e6c4'
-          },
-          fontFamily: {
-            display: ['Playfair Display', 'serif'],
-            body: ['Poppins', 'sans-serif']
-          }
+          colors: { kopi: '#2b1d1d', kuba: '#d4a373', cream: '#f5e6c4' },
+          fontFamily: { display: ['Playfair Display', 'serif'], body: ['Poppins', 'sans-serif'] }
         }
       }
     };
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-
-  <div class="toast-container" id="toast-container"></div>
-
   <main class="login-page px-5">
     <section class="login-wrap grid w-full max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
       <div class="brand login-brand-stack flex flex-col items-start gap-5">
@@ -55,9 +53,14 @@
         <h2>Selamat Datang</h2>
         <p class="muted">Masuk ke akun Kopi Kuba untuk melanjutkan</p>
 
-        <div id="login-msg" class="login-msg" aria-live="polite"></div>
+        <?php if(isset($_SESSION['error'])): ?>
+            <div style="color: red; margin-bottom: 15px; font-size: 14px; background: #fee2e2; padding: 10px; border-radius: 5px;">
+                <?= $_SESSION['error']; ?>
+            </div>
+            <?php unset($_SESSION['error']); // Hapus error setelah ditampilkan ?>
+        <?php endif; ?>
 
-        <form id="loginForm" onsubmit="return false;" class="login-form">
+        <form action="login_process.php" method="POST" class="login-form">
           <div class="input-group">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="nama@email.com" required>
@@ -73,30 +76,14 @@
             <a class="forgot-link" href="#">Lupa password?</a>
           </div>
 
-          <button type="button" class="btn-login" onclick="handleLogin()">Masuk</button>
+          <button type="submit" class="btn-login" style="width: 100%; padding: 10px; background: #d4a373; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px;">Masuk</button>
         </form>
 
-        <div class="login-footer">Belum punya akun? <a href="register.html">Daftar di sini</a></div>
+        <div class="login-footer" style="margin-top: 20px; text-align: center;">
+            Belum punya akun? <a href="register.php" style="color: #d4a373;">Daftar di sini</a>
+        </div>
       </div>
     </section>
   </main>
-
-  <script>
-    // Redirect jika sudah login
-    (function(){
-      var s = localStorage.getItem('kopikuba_session') || sessionStorage.getItem('kopikuba_session');
-      if (s) location.href = 'index.html';
-
-      // Enter key submits
-      document.addEventListener('keydown', function(e){
-        if (e.key === 'Enter') {
-          var active = document.activeElement;
-          if (active && (active.tagName === 'INPUT')) handleLogin();
-        }
-      });
-    })();
-  </script>
-
-  <script src="app.js"></script>
 </body>
 </html>

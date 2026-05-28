@@ -518,6 +518,57 @@ nav a.nav-active::after { transform: translateX(-50%) scaleX(1); }
   z-index: 1;
 }
 
+.logout-modal-overlay {
+  background: rgba(10, 7, 4, 0.82);
+}
+
+.logout-modal-card {
+  background: linear-gradient(180deg, #3b2318 0%, #5c3928 58%, #b07e52 100%);
+  border: 1px solid rgba(245, 230, 196, 0.28);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+}
+
+.logout-modal-icon {
+  font-size: 3.6rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.logout-modal-copy {
+  color: rgba(245, 230, 196, 0.92);
+}
+
+.logout-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.logout-modal-actions a,
+.logout-modal-actions button {
+  min-width: 140px;
+}
+
+.logout-modal-actions button {
+  border-color: rgba(245, 230, 196, 0.7);
+}
+
+.logout-modal-actions a {
+  background: #d4a373;
+  color: #1f1411;
+}
+
+@media (max-width: 640px) {
+  .logout-modal-card {
+    padding: 1.75rem;
+  }
+
+  .logout-modal-actions {
+    flex-direction: column;
+  }
+}
+
 .btn-hero:hover .arrow { transform: translateY(2px); }
 
 .btn-hero-secondary {

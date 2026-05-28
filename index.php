@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -5,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kopi Kuba</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1003">
   <script>
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
@@ -29,23 +32,36 @@
 </head>
 <body>
 
-  <!-- Toast container -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Nav overlay for mobile -->
   <div class="nav-overlay" id="nav-overlay" onclick="closeMenu()"></div>
 
-  <!-- Checkout overlay -->
-  <div class="checkout-overlay" id="checkout-overlay">
-    <div class="checkout-box">
-      <div class="checkout-icon">✅</div>
-      <h3>Pesanan Diterima!</h3>
-      <p>Terima kasih sudah memesan di Kopi Kuba. Pesanan Anda sedang diproses.</p>
-      <button onclick="closeCheckout()">Kembali ke Beranda</button>
+  <div id="kuba-checkout-overlay" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div id="kuba-checkout-modal-box" class="bg-kopi border-2 border-cream text-white rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl scale-95 transition-transform duration-300">
+      <div id="checkout-dynamic-content"></div>
+      <button onclick="kubaCloseCheckout()" class="mt-6 px-5 py-2.5 bg-kuba text-white rounded-lg hover:bg-[#b0855a] font-bold w-full transition-all border-none cursor-pointer">Selesai & Tutup</button>
     </div>
   </div>
 
-  <!-- Navbar -->
+  <div id="logout-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center logout-modal-overlay backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="logout-modal-card p-8 rounded-3xl text-center max-w-sm w-full mx-4 border-2 border-cream scale-95 transition-transform duration-300">
+      <div class="logout-modal-icon">☕✨</div>
+      <h3 class="text-white font-display text-3xl font-extrabold mb-2 tracking-tight">Konfirmasi Keluar</h3>
+      <p class="text-white/90 font-body text-sm mb-4">
+        Yakin mau keluar dari akun <strong class="text-kopi font-black text-base"><?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?></strong>?
+      </p>
+      <p class="logout-modal-copy text-cream font-display text-base leading-relaxed mb-8 px-4">
+        Sampai jumpa lagi di cangkir berikutnya — semoga aroma Kopi Kuba selalu membuat hari kamu hangat dan berkesan.
+      </p>
+      <div class="logout-modal-actions flex flex-col gap-3 sm:flex-row justify-center font-body">
+        <button onclick="closeLogoutModal()" class="px-5 py-2.5 rounded-full bg-transparent border-2 border-kopi text-kopi hover:bg-kopi hover:text-white transition-all font-semibold cursor-pointer">Batal</button>
+     <a href="logout.php" style="color: #d4a373; font-weight: 600;">
+  👤 <?= htmlspecialchars($_SESSION['username']); ?> (Keluar)
+</a>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="logo logo-brand" onclick="navTo('home')" aria-label="Beranda Kopi Kuba">
       <span class="logo-mark">☕</span>
@@ -61,112 +77,21 @@
       <a onclick="navToSection('roastery')" data-page="roastery">Roastery</a>
       <a onclick="navToSection('cafe')" data-page="cafe">Our Cafe</a>
       <a onclick="navToSection('founder')" data-page="founder">Founder</a>
-      <a onclick="goToLogin()" data-page="login">Login</a>
-      <a onclick="navTo('cart')" data-page="cart" class="cart-link">🛒 Keranjang <span class="cart-badge" id="cart-count">0</span></a>
+      
+      <?php if(isset($_SESSION['user_id'])): ?>
+          <a href="#" style="color: #d4a373; font-weight: 600;" onclick="showLogoutModal(event)">
+              👤 <?= htmlspecialchars($_SESSION['username']); ?> (Keluar)
+          </a>
+      <?php else: ?>
+          <a href="login.php" data-page="login.php">Login</a>
+      <?php endif; ?>
+
+      <a href="keranjang.php" class="cart-link">🛒 Keranjang <span class="cart-badge" id="cart-count">0</span></a>
     </nav>
   </header>
-  <script>
-  // ===== UPDATE NAVBAR SETELAH LOGIN =====
-  function updateNavUser() {
-    var session = localStorage.getItem('kopikuba_session')
-                || sessionStorage.getItem('kopikuba_session');
 
-    if (!session) return;
-
-    var user = JSON.parse(session);
-
-    var loginBtn = document.querySelector('[data-page="login"]');
-    if (loginBtn) {
-      loginBtn.textContent = user.avatar + ' ' + user.firstName;
-      loginBtn.onclick = function() {
-        if (confirm('Keluar dari akun ' + user.firstName + '?')) {
-          localStorage.removeItem('kopikuba_session');
-          sessionStorage.removeItem('kopikuba_session');
-          location.reload();
-        }
-      };
-    }
-  }
-  
-function goToLogin() {
-  var session = localStorage.getItem('kopikuba_session')
-              || sessionStorage.getItem('kopikuba_session');
-  if (session) {
-    // Sudah login — tanya mau logout tidak
-    var user = JSON.parse(session);
-    if (confirm('Keluar dari akun ' + user.firstName + '?')) {
-      localStorage.removeItem('kopikuba_session');
-      sessionStorage.removeItem('kopikuba_session');
-      location.reload();
-    }
-  } else {
-    // Belum login — pergi ke login.html
-    window.location.href = 'login.html';
-  }
-}
-
-  // ===== FUNGSI LOGIN =====
-  function handleLogin() {
-    var email    = document.getElementById('email').value.trim();
-    var password = document.getElementById('password').value;
-    var remember = document.getElementById('remember').checked;
-    var msg      = document.getElementById('login-msg');
-
-    // Reset pesan error
-    msg.className = 'login-msg';
-    msg.textContent = '';
-
-    // Validasi input kosong
-    if (!email || !password) {
-      msg.classList.add('error');
-      msg.textContent = '❌ Email dan password harus diisi.';
-      return;
-    }
-
-    // Ambil data users dari localStorage
-    var users = JSON.parse(localStorage.getItem('kopikuba_users') || '[]');
-
-    // Cari user yang cocok
-    var found = users.find(function(u) {
-      return u.email === email && u.password === password;
-    });
-
-    if (!found) {
-      msg.classList.add('error');
-      msg.textContent = '❌ Email atau password salah.';
-      return;
-    }
-
-    // Simpan sesi login
-    var sessionData = {
-      id:        found.id,
-      fullName:  found.fullName,
-      firstName: found.firstName,
-      avatar:    found.avatar,
-      email:     found.email
-    };
-
-    if (remember) {
-      localStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-    } else {
-      sessionStorage.setItem('kopikuba_session', JSON.stringify(sessionData));
-    }
-
-    // Update navbar langsung tanpa reload
-    updateNavUser();
-
-    // Kembali ke beranda
-    navTo('home');
-  }
-
-  // Panggil updateNavUser setelah DOM siap
-  document.addEventListener('DOMContentLoaded', updateNavUser); 
-</script>
-
-  <!-- ===== HOME PAGE ===== -->
   <div id="page-home" class="page active">
 
-    <!-- Hero -->
     <section class="hero flex items-center">
       <div class="hero-content mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 px-5 md:px-8 lg:grid-cols-[minmax(0,1fr)_420px]">
         <div class="hero-copy">
@@ -220,7 +145,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Coffee Beans -->
     <section class="products" id="beans">
       <div class="product-shell mx-auto max-w-6xl px-5 md:px-8">
         <div class="section-intro mx-auto max-w-3xl text-center">
@@ -328,7 +252,7 @@ function goToLogin() {
 
         <div class="card reveal reveal-d2">
           <div class="card-img-wrap">
-            <img src="https://media.istockphoto.com/id/1337868547/id/foto/biji-kopi-merah-organik-100-di-tangan-dan-keranjang-petani-di-pertanian-nasional-chiang-mai.webp?a=1&b=1&s=612x612&w=0&k=20&c=jLuwT2qgJDlcClSiL5AP825NlJ9EI8knPQWc4xLcng8=">
+            <img src="https://media.istockphoto.com/id/1337868547/id/foto/biji-kopi-merah-organik-100-di-tangan-dan-keranjang-petani-di-pertanian-nasional-chiang-mai.webp?a=1&b=1&s=612x612&w=0&k=20&c=jLuwT2qgJDlcClSiL5AP825NlJ9EI8knPQWc4xLcng8=" alt="Mandailing Natal">
           </div>
           <div class="card-body">
             <h3>Mandailing Natal</h3>
@@ -348,7 +272,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Roastery -->
     <section class="roastery" id="roastery">
       <h2 class="section-heading">Our Coffee Roastery</h2>
       <div class="bio-grid">
@@ -432,7 +355,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Cafe -->
     <section class="cafe" id="cafe">
       <h2 class="section-heading">Our Cafe</h2>
       <div class="cafe-content">
@@ -442,7 +364,7 @@ function goToLogin() {
         <div class="cafe-text reveal reveal-d1">
           <p>
             Kopi Kuba bukan sekadar ruang, melainkan panggung di mana aroma kopi menyatukan jiwa-jiwa.
-            Di balik dinding kayu yang hangat dan bisikan harum biji kopi segar, tercipta tempat pertemuan
+            Di balik dinding kayu yang hangat and bisikan harum biji kopi segar, tercipta tempat pertemuan
             rasa, cerita, dan inspirasi.
           </p>
           <div class="cafe-location">
@@ -452,7 +374,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Neighborhood Stack -->
     <section class="neighbor-stack px-5 py-16 md:px-8 lg:py-20">
       <div class="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
         <article class="neighbor-visual reveal">
@@ -487,7 +408,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Founder -->
     <section class="founder" id="founder">
       <h2 class="section-heading">Meet Our Founders</h2>
       <div class="founder-content">
@@ -525,7 +445,7 @@ function goToLogin() {
 
           <div class="founder-card reveal reveal-d1">
             <div class="founder-img-wrap">
-              <img src="https://i.pinimg.com/736x/87/47/82/874782152b9b1c78b439ef46b51f672e.jpg" alt="Raditya-fadia">
+              <img src="https://i.pinimg.com/736x/87/47/82/874782152b9b1c78b439ef46b51f772e.jpg" alt="Raditya-fadia">
               <div class="founder-overlay">
                 <h3>Raditya-fadia</h3>
                 <span class="founder-role">Co-Founder & Brand Director</span>
@@ -588,7 +508,6 @@ function goToLogin() {
       </div>
     </section>
 
-    <!-- Footer -->
     <footer>
       <div class="footer-content">
         <div class="footer-brand">
@@ -615,38 +534,6 @@ function goToLogin() {
     </footer>
   </div>
 
-  <!-- ===== LOGIN PAGE ===== -->
-  <div id="page-login" class="page">
-    <div class="login-page">
-      <div class="login-container">
-        <div class="login-icon">USER</div>
-        <h2>Selamat Datang</h2>
-        <p>Masuk ke akun Kopi Kuba Anda</p>
-        <div id="login-msg" class="login-msg"></div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="nama@email.com">
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Minimal 6 karakter">
-        </div>
-        <div class="login-options">
-          <div class="checkbox-group">
-            <input type="checkbox" id="remember">
-            <label for="remember">Ingat saya</label>
-          </div>
-          <a class="forgot-link" href="#">Lupa Password?</a>
-        </div>
-        <button class="btn-login" onclick="handleLogin()">Masuk</button>
-        <div class="login-footer">
-          Belum punya akun? <a href="register.html">Daftar di sini</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== CART PAGE ===== -->
   <div id="page-cart" class="page">
     <div class="cart-page">
       <div id="cart">
@@ -660,18 +547,38 @@ function goToLogin() {
             <span class="cart-total-label">Total</span>
             <span class="cart-total-value">Rp <span id="cart-total">0</span></span>
           </div>
+
+          <div class="mt-4 mb-5 p-4 bg-[#3a2828] rounded-lg border border-kuba/30 text-left">
+            <h4 class="text-cream font-display font-bold mb-3 text-lg">Metode Pembayaran</h4>
+            <div class="flex flex-col gap-3 text-white/90 text-sm font-body">
+              <label class="flex items-center gap-3 cursor-pointer hover:text-kuba transition-colors">
+                <input type="radio" name="payment_method" value="qris" checked class="w-4 h-4 accent-kuba">
+                <span>📱 QRIS (Gopay, OVO, Dana, LinkAja)</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer hover:text-kuba transition-colors">
+                <input type="radio" name="payment_method" value="debit" class="w-4 h-4 accent-kuba">
+                <span>💳 Transfer Bank / Virtual Account</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer hover:text-kuba transition-colors">
+                <input type="radio" name="payment_method" value="cash" class="w-4 h-4 accent-kuba">
+                <span>💵 Bayar di Kasir (Cash/EDC)</span>
+              </label>
+            </div>
+          </div>
+
           <div class="cart-actions">
             <button class="btn-clear" onclick="clearCart()">Kosongkan</button>
             <button class="btn-continue" onclick="navTo('home')">Belanja Lagi</button>
-            <button class="btn-checkout" onclick="checkout()">Checkout →</button>
+            <button class="btn-checkout" onclick="kubaCheckout()">Bayar Sekarang →</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="cart.js"></script>
-  <script src="app.js"></script>
+<script src="cart.js?v=999"></script>
+  <script src="app.js?v=999"></script>
+  <script>
+  </script>
 </body>
 </html>
